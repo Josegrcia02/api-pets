@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    ports:
+      - "8084:80"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+
+  db:
+    # 🚨 CAMBIO 1: Imagen de PostgreSQL en lugar de MySQL
+    image: postgres:16
+    restart: always
+    environment:
+      # Las variables de entorno son diferentes para PostgreSQL
+      POSTGRES_USER: usuario_app 
+      POSTGRES_PASSWORD: clave_app
+      POSTGRES_DB: pets
+    ports:
+      # El puerto predeterminado de PostgreSQL es 5432
+      - "5433:5432" 
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d # Asegúrate de que tus scripts sean SQL para Postgres
+
+  pgadmin:
+    # 🚨 CAMBIO 2: Imagen de pgAdmin en lugar de phpMyAdmin
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "8085:80" # Puerto para acceder a pgAdmin en tu navegador
+    environment:
+      # Variables de entorno para pgAdmin
+      PGADMIN_DEFAULT_EMAIL: admin@ejemplo.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_LISTEN_PORT: 80
+    depends_on:
+      - db

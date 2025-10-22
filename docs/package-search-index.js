@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.example.despliegue_api_rest"},{"l":"com.example.despliegue_api_rest.controller"},{"l":"com.example.despliegue_api_rest.entity"},{"l":"com.example.despliegue_api_rest.repository"}];updateSearchResults();

@@ -1,0 +1,11 @@
+FROM php:8.2-apache
+
+# Copiar tu código al DocumentRoot
+COPY ./frontend/ /var/www/html/
+
+# Habilitar módulos necesarios
+RUN docker-php-ext-install pdo pdo_mysql
+
+# Asegurar permisos
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html

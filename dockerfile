@@ -1,10 +1,19 @@
-FROM php:8.2-apache
+FROM maven:3.9.9-eclipse-temurin-17
 
-# 1. Copia el código fuente al contenedor
-COPY . /var/www/html/
+WORKDIR /app
 
-# 2. 🚨 SOLUCIÓN: Cambia el propietario del directorio /var/www/html
-#    El usuario www-data es el que usa Apache dentro del contenedor.
-RUN chown -R www-data:www-data /var/www/html/
+# Copiamos el pom.xml y las dependencias primero
+COPY pom.xml .
+RUN mvn dependency:go-offline
 
-EXPOSE 80
+# Copiamos el código fuente
+COPY src /app/src
+
+# (Opcional) Compila la app si quieres dejarla ya lista
+RUN mvn package -DskipTests
+
+# Expone el puerto de Spring Boot
+EXPOSE 8080
+
+# Puedes ejecutar directamente con Maven:
+CMD ["mvn", "spring-boot:run"]

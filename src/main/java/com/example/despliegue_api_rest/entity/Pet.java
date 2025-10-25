@@ -12,17 +12,17 @@ public class Pet {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
     private String name;
     private LocalDate born;
     private String chip;
     private String category;
     private Boolean adopt;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
     public String getName() {

@@ -1,40 +1,75 @@
 version: "3.9"
 
 services:
+  # Servicio 1: API de Spring Boot (Contruida desde el Dockerfile)
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pets_api
     ports:
-      - "8084:80"
-    volumes:
-      - .:/var/www/html
+      # Mapea el puerto local 8080 al puerto interno 8080 del contenedor
+      - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      # CRÍTICO: La API se conecta al servicio 'db' por su nombre
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pets
+      SPRING_DATASOURCE_USERNAME: usuario_app
+      SPRING_DATASOURCE_PASSWORD: clave_app
+    # Si su API tarda en iniciar, puede añadir un healthcheck aquí.
 
+  # Servicio 2: Frontend PHP/Apache (Construido desde Dockerfile-php)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: pets_frontend
+    ports:
+      # Mapea el puerto local 8086 al puerto interno 80 del contenedor PHP
+      - "8086:80" 
+    depends_on:
+      - web # Aseguramos que la API esté corriendo antes de iniciar el frontend
+    # CRÍTICO: Su index.php debe usar http://web:8080/pet/list
+
+  # Servicio 3: Base de Datos PostgreSQL
   db:
-    # 🚨 CAMBIO 1: Imagen de PostgreSQL en lugar de MySQL
     image: postgres:16
+    container_name: pets_db
     restart: always
     environment:
-      # Las variables de entorno son diferentes para PostgreSQL
-      POSTGRES_USER: usuario_app 
+      POSTGRES_USER: usuario_app
       POSTGRES_PASSWORD: clave_app
       POSTGRES_DB: pets
     ports:
-      # El puerto predeterminado de PostgreSQL es 5432
-      - "5433:5432" 
+      # Mapeamos el 5433 para acceso externo (como pgadmin o herramientas locales)
+      - "5433:5432"
     volumes:
-      - ./sql:/docker-entrypoint-initdb.d # Asegúrate de que tus scripts sean SQL para Postgres
+      - ./sql:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuario_app -d pets"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
+  # Servicio 4: pgAdmin
   pgadmin:
-    # 🚨 CAMBIO 2: Imagen de pgAdmin en lugar de phpMyAdmin
     image: dpage/pgadmin4
+    container_name: pgadmin4_pets
     restart: always
     ports:
-      - "8085:80" # Puerto para acceder a pgAdmin en tu navegador
+      - "8085:80"
     environment:
-      # Variables de entorno para pgAdmin
       PGADMIN_DEFAULT_EMAIL: admin@ejemplo.com
       PGADMIN_DEFAULT_PASSWORD: root
       PGADMIN_LISTEN_PORT: 80
+      PGADMIN_SETUP_SERVER_PASSWORD: clave_app 
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json:ro
     depends_on:
       - db
+
+volumes:
+  postgres_data:

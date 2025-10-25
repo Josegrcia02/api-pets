@@ -14,7 +14,7 @@ import com.example.despliegue_api_rest.repository.PetRepository;
 
 @RestController
 @RequestMapping("/pet")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "*")
 /**
  * En este controlador se exponen todos los endpoint referentes a Pets {@Link Pet}
  * @version 1.0

@@ -1,0 +1,14 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Docker Pets DB",
+      "Group": "Docker Compose",
+      "Port": 5432,
+      "Username": "usuario_app",
+      "Host": "db",
+      "SSLMode": "prefer",
+      "MaintenanceDB": "pets",
+      "PassFile": "/tmp/pgpass"
+    }
+  }
+}

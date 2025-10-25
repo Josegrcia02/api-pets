@@ -1,5 +1,5 @@
 <?php
-$url = "http://host.docker.internal:8080/pet/list";
+$url = "http://web:8080/pet/list";
 $data = file_get_contents($url);
 
 //Json to Array

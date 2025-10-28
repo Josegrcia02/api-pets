@@ -1,10 +1,14 @@
 <?php
-$url = "http://web:8080/pet/list";
-$data = file_get_contents($url);
+require_once 'config/config.php'; 
+$url = BASE_URL . "pet/list"; 
+$data = @file_get_contents($url);
 
-//Json to Array
-$pets = json_decode($data, true);
-
+if ($data === FALSE) {
+    $pets = [];
+} else {
+    // Json to Array
+    $pets = json_decode($data, true);
+}
 
 
 ?>
@@ -38,16 +42,14 @@ $pets = json_decode($data, true);
                         <td><?= $pet['chip'] ?></td>
                         <td><?= $pet['category'] ?></td>
                         <td><?= $pet['born'] ?></td>
-                        <td>
-                            <?php if(!$pet['adopt']): ?>
-                                <button type="button" class="btn btn-success" onclick="adoptPet(<?= $pet['id'] ?>)">Adoptar</button>
-                            <?php else: ?>
-                                ✅ Adoptado
-                            <?php endif; ?>
-                        </td>
+                        <td><?= $pet['adopt'] ? '✅ Adoptado' : '<button type="button" class="btn btn-success" onclick="adoptPet('.$pet['id'].')">Adoptar</button>' ?></td>
                     </tr>
                 <?php endforeach; ?>
-                <?php endif; ?>
+            <?php else: ?>
+                <tr>
+                    <td colspan="6">No se encontraron mascotas o hubo un error de conexión con la API.</td>
+                </tr>
+            <?php endif; ?>
         </tbody>
     </table>
 

@@ -3,6 +3,7 @@ package com.example.despliegue_api_rest.controller;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,14 +15,17 @@ import com.example.despliegue_api_rest.repository.PetRepository;
 
 @RestController
 @RequestMapping("/pet")
-@CrossOrigin(origins = "*")
 /**
  * En este controlador se exponen todos los endpoint referentes a Pets {@Link Pet}
  * @version 1.0
  * @author José García
  */
-
+@CrossOrigin(origins = {"${app.cors.allowed-origins}"})
 public class Controllerpets {
+
+    @Value("${app.cors.allowed-origins}")
+    private String allowedOrigins;
+    
     private PetRepository petRepository;
 
     /**

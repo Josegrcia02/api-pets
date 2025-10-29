@@ -1,6 +1,9 @@
 FROM php:8.2-apache
 
-# Copiar tu código al DocumentRoot
+# 1. Copiar la carpeta 'config'
+COPY ./config/ /var/www/html/config/
+
+# 2. Copiar tu código principal al DocumentRoot
 COPY ./frontend/ /var/www/html/
 
 # Habilitar módulos necesarios

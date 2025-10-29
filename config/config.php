@@ -10,7 +10,8 @@ $base_url_php = "http://web:8080/";
 
 // JS desde navegador
 if ($env === 'DEVELOPMENT') {
-    $js_api_url = "http://localhost:8080/";  // fetch desde navegador
+    $base_url_php = "http://localhost:8080/";  // PHP server apuntando al backend local
+    $js_api_url = "http://localhost:8080/";   // fetch desde navegador
 } else {
     // En producción, usar la URL pública definida en INI
     $js_api_url = isset($conf[$section]['base_url']) ? $conf[$section]['base_url'] : "http://web:8080/";

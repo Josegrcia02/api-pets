@@ -1,8 +1,7 @@
-version: "3.9"
-
 services:
   # Servicio 1: API de Spring Boot (Contruida desde el Dockerfile)
   web:
+    profiles: ["prod"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,6 +22,7 @@ services:
 
   # Servicio 2: Frontend PHP/Apache (Construido desde Dockerfile-php)
   frontend:
+    profiles: ["prod"]
     build:
       context: .
       dockerfile: Dockerfile-php

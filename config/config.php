@@ -1,14 +1,22 @@
 <?php
-    $env = getenv('ENVIRONMENT') ?: 'PRODUCTION';
-    $section = strtoupper($env);
+$env = getenv('ENVIRONMENT') ?: 'PRODUCTION';
+$section = strtoupper($env);
 
-    // Cargar el archivo INI con secciones
-    $conf =  parse_ini_file('config.ini', true);
+// Cargar archivo INI
+$conf = parse_ini_file(__DIR__ . '/config.ini', true);
 
-    if(isset($conf[$section]['base_url'])){
-        define("BASE_URL", $conf[$section]['base_url']);
-    } else {
-        // Fallback o manejo de error si BASE_URL no está en la sección
-        define("BASE_URL", "/"); 
-    }
+// PHP dentro de Docker siempre usa el contenedor backend
+$base_url_php = "http://web:8080/";
+
+// JS desde navegador
+if ($env === 'DEVELOPMENT') {
+    $js_api_url = "http://localhost:8080/";  // fetch desde navegador
+} else {
+    // En producción, usar la URL pública definida en INI
+    $js_api_url = isset($conf[$section]['base_url']) ? $conf[$section]['base_url'] : "http://web:8080/";
+}
+
+// Definir constantes
+define("BASE_URL", $base_url_php);  // PHP
+define("JS_API_URL", $js_api_url);  // JS
 ?>

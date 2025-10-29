@@ -1,0 +1,74 @@
+version: "3.9"
+
+services:
+  # Servicio 1: API de Spring Boot (Contruida desde el Dockerfile)
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pets_api
+    ports:
+      # Mapea el puerto local 8080 al puerto interno 8080 del contenedor
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
+      # CRÍTICO: La API se conecta al servicio 'db' por su nombre
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pets
+      SPRING_DATASOURCE_USERNAME: usuario_app
+      SPRING_DATASOURCE_PASSWORD: clave_app
+
+  # Servicio 2: Frontend PHP/Apache (Configurado para ejecutarse sin esperar a 'web')
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-php
+    container_name: pets_frontend
+    ports:
+      # Mapea el puerto local 8086 al puerto interno 80 del contenedor PHP
+      - "8086:80" 
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT}
+
+  # Servicio 3: Base de Datos PostgreSQL
+  db:
+    image: postgres:16
+    container_name: pets_db
+    restart: always
+    environment:
+      POSTGRES_USER: usuario_app
+      POSTGRES_PASSWORD: clave_app
+      POSTGRES_DB: pets
+    ports:
+      # Mapeamos el 5433 para acceso externo (como pgadmin o herramientas locales)
+      - "${DB_PORT_LOCAL}:5432"
+    volumes:
+      - ./sql:/docker-entrypoint-initdb.d
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U usuario_app -d pets"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Servicio 4: pgAdmin
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_pets
+    restart: always
+    ports:
+      - "8085:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@ejemplo.com
+      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_LISTEN_PORT: 80
+      PGADMIN_SETUP_SERVER_PASSWORD: clave_app 
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json:ro
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

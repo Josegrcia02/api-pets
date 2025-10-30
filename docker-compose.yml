@@ -1,8 +1,7 @@
-version: "3.9"
-
 services:
   # Servicio 1: API de Spring Boot (Contruida desde el Dockerfile)
   web:
+    profiles: ["prod"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -14,6 +13,7 @@ services:
       db:
         condition: service_healthy
     environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE}
       # CRÍTICO: La API se conecta al servicio 'db' por su nombre
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/pets
       SPRING_DATASOURCE_USERNAME: usuario_app
@@ -22,6 +22,7 @@ services:
 
   # Servicio 2: Frontend PHP/Apache (Construido desde Dockerfile-php)
   frontend:
+    profiles: ["prod"]
     build:
       context: .
       dockerfile: Dockerfile-php
@@ -31,7 +32,8 @@ services:
       - "8086:80" 
     depends_on:
       - web # Aseguramos que la API esté corriendo antes de iniciar el frontend
-    # CRÍTICO: Su index.php debe usar http://web:8080/pet/list
+    environment:
+      ENVIRONMENT: ${ENVIRONMENT}
 
   # Servicio 3: Base de Datos PostgreSQL
   db:
@@ -44,7 +46,7 @@ services:
       POSTGRES_DB: pets
     ports:
       # Mapeamos el 5433 para acceso externo (como pgadmin o herramientas locales)
-      - "5433:5432"
+      - "${DB_PORT_LOCAL}:5432"
     volumes:
       - ./sql:/docker-entrypoint-initdb.d
       - postgres_data:/var/lib/postgresql/data

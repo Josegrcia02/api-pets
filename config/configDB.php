@@ -24,11 +24,23 @@ class configDB {
      }
 
      private function getValues(){
-        $conf =  parse_ini_file('config.ini');
-        self::$host = $conf['host'];
-        self::$user = $conf['user'];
-        self::$pass = $conf['pass'];
+        // 1. Obtener la variable de entorno. Por defecto, 'PRODUCTION'.
+        $env = getenv('ENVIRONMENT') ?: 'PRODUCTION';
+        $section = strtoupper($env); // 'DEVELOPMENT' o 'PRODUCTION'
+
+        // 2. Cargar el archivo INI con las secciones
+        $conf =  parse_ini_file('config.ini', true); // El 'true' es clave para leer secciones
+
+        // 3. Cargar los valores de la sección
+        if (isset($conf[$section])) {
+            self::$host = $conf[$section]['host'];
+            self::$user = $conf[$section]['user'];
+            self::$pass = $conf[$section]['pass'];
+        } else {
+             throw new Exception("Configuración para el entorno $section no encontrada.");
+        }
      }
+}
 
      /**
       * Get the value of instance

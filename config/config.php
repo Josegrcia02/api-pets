@@ -14,7 +14,7 @@ if ($env === 'DEVELOPMENT') {
     $js_api_url = "http://localhost:8080/";   // fetch desde navegador
 } else {
     // En producción, usar la URL pública definida en INI
-    $js_api_url = isset($conf[$section]['base_url']) ? $conf[$section]['base_url'] : "http://web:8080/";
+    $js_api_url = isset($conf[$section]['base_url']) ? $conf[$section]['base_url'] : "http://localhost:8080/";
 }
 
 // Definir constantes
